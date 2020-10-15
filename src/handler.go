@@ -51,6 +51,7 @@ func GetResponseForMode() (response []byte) {
 				return []byte("0%\n")
 			}
 			averageCpuLoad = cpuLoad[0]
+			divider++
 		}
 
 		// Calculate RAM
@@ -60,6 +61,7 @@ func GetResponseForMode() (response []byte) {
 				return []byte("0%\n")
 			}
 			usedRam = v.UsedPercent
+			divider++
 		}
 
 		// If any resource is important and utilized 100% then everything else is not important
@@ -71,14 +73,7 @@ func GetResponseForMode() (response []byte) {
 		}
 
 		utilization = utilization + averageCpuLoad*cpuImportance
-		if cpuImportance > 0 {
-			divider++
-		}
-
 		utilization = utilization + usedRam*ramImportance
-		if ramImportance > 0 {
-			divider++
-		}
 
 		for _, tcpService := range GlobalConfig.TCPService {
 			// Make sure our importance factor is greater than 0 otherwise ignore
