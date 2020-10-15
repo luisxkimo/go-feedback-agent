@@ -7,7 +7,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
-	"time"
+	"time"	
 )
 
 var currentAgentStatus string = ""
@@ -66,8 +66,8 @@ type XMLConfig struct {
 	Port                              ValueAttr
 }
 
-func readConfig() {
-	xmlFile, err := os.Open("C:/ProgramData/LoadBalancer.org/LoadBalancer/config.xml")
+func readConfig(configFilePath string) {
+	xmlFile, err := os.Open(configFilePath)
 	if err != nil {
 		panic(err)
 	}
@@ -83,13 +83,14 @@ func readConfig() {
 	}
 }
 
-func InitConfig() {
-	f, err := os.OpenFile("C:/ProgramData/LoadBalancer.org/LoadBalancer/lbfbalogfile", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+func InitConfig(logFilePath string, configFilePath string) {
+	// errFilePath := fmt.Sprintf("%s\\logFile.txt", logFilePath)
+	f, err := os.OpenFile(logFilePath, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 	if err != nil {
 		log.Fatalf("error opening file: %v", err)
 	}
 	log.SetOutput(f)
-	readConfig()
+	readConfig(configFilePath)
 
 	intervalTicker := time.NewTicker(time.Second * time.Duration(GlobalConfig.Interval.ToInt()))
 	go func() {
@@ -107,7 +108,7 @@ func InitConfig() {
 			for {
 				select {
 				case <-statusTicker.C:
-					readConfig()
+					readConfig(configFilePath)
 					// If status changed, send 'up ready' for a full interval
 					if currentAgentStatus != GlobalConfig.AgentStatus.Value {
 						initialRun = true

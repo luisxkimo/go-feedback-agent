@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/kardianos/service"
 	"log"
+	"os"	
 )
 
 var logger service.Logger
@@ -15,7 +16,9 @@ func (p *program) Start(s service.Service) error {
 }
 func (p *program) run() {
 	// Do work here
-	InitConfig()
+	logFilePath := os.Args[1]
+	configFilePath := os.Args[2]
+	InitConfig(logFilePath, configFilePath)
 	srv := InitServer()
 
 	for {
