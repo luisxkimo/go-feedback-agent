@@ -18,6 +18,7 @@ const (
 
 var (
 	initialRun = true
+	autodrained = false
 )
 
 const (
@@ -63,7 +64,9 @@ func GetResponseForMode() (response []byte) {
 
 		// If any resource is important and utilized 100% then everything else is not important
 		if averageCpuLoad > cpuThresholdValue && cpuThresholdValue > 0 || (usedRam > ramThresholdValue && ramThresholdValue > 0) {
-			response = []byte("0%\n")
+			//response = []byte("0%\n")
+			response = []byte("drain\n")
+			autodrained = true
 			return
 		}
 
@@ -109,9 +112,15 @@ func GetResponseForMode() (response []byte) {
 		}
 
 		if returnIdle {
+			if autodrained {
+				initialRun = true							
+			}
 			response = []byte(fmt.Sprintf("%v%%\n", math.Ceil(100-utilization)))
+			autodrained = false
 		} else {
+			// Branch not used. returnIdle variable ever is true
 			response = []byte(fmt.Sprintf("%v%%\n", math.Ceil(utilization)))
+			autodrained = false
 		}
 
 		if initialRun {
