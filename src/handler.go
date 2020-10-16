@@ -2,11 +2,13 @@ package main
 
 import (
 	"fmt"
-	"github.com/shirou/gopsutil/cpu"
-	"github.com/shirou/gopsutil/mem"
 	"math"
 	"net"
+	"strconv"
 	"strings"
+
+	"github.com/shirou/gopsutil/cpu"
+	"github.com/shirou/gopsutil/mem"
 )
 
 const (
@@ -17,12 +19,8 @@ const (
 )
 
 var (
-	initialRun = true
+	initialRun  = true
 	autodrained = false
-)
-
-const (
-	returnIdle = true
 )
 
 func handleClient(conn net.Conn) {
@@ -36,6 +34,7 @@ func GetResponseForMode() (response []byte) {
 	cpuThresholdValue := GlobalConfig.Cpu.ThresholdValue.ToFloat()
 	cpuImportance := GlobalConfig.Cpu.ImportanceFactor.ToFloat()
 	ramImportance := GlobalConfig.Ram.ImportanceFactor.ToFloat()
+	returnIdle, _ := strconv.ParseBool(strings.ToLower(GlobalConfig.ReturnIdleInsteadLoad.Value))
 
 	switch GlobalConfig.AgentStatus.Value {
 	case Normal:
@@ -66,14 +65,10 @@ func GetResponseForMode() (response []byte) {
 
 		// If any resource is important and utilized 100% then everything else is not important
 		if averageCpuLoad > cpuThresholdValue && cpuThresholdValue > 0 || (usedRam > ramThresholdValue && ramThresholdValue > 0) {
-			//response = []byte("0%\n")
-			response = []byte("drain\n")
+			response = []byte("0% drain\n")
 			autodrained = true
 			return
 		}
-
-		utilization = utilization + averageCpuLoad*cpuImportance
-		utilization = utilization + usedRam*ramImportance
 
 		for _, tcpService := range GlobalConfig.TCPService {
 			// Make sure our importance factor is greater than 0 otherwise ignore
@@ -82,7 +77,7 @@ func GetResponseForMode() (response []byte) {
 				sessionOccupied := GetSessionUtilized(tcpService.IPAddress.Value, tcpService.Port.Value, tcpService.MaxConnections.ToInt())
 
 				// Calculate utilization
-				utilization = utilization + sessionOccupied * tcpService.ImportanceFactor.ToFloat()
+				utilization = utilization + sessionOccupied*tcpService.ImportanceFactor.ToFloat()
 
 				// increase our divider
 				divider++
@@ -93,6 +88,9 @@ func GetResponseForMode() (response []byte) {
 				}
 			}
 		}
+
+		utilization = utilization + averageCpuLoad*cpuImportance
+		utilization = utilization + usedRam*ramImportance
 
 		utilization = utilization / divider
 
@@ -108,7 +106,7 @@ func GetResponseForMode() (response []byte) {
 
 		if returnIdle {
 			if autodrained {
-				initialRun = true							
+				initialRun = true
 			}
 			response = []byte(fmt.Sprintf("%v%%\n", math.Ceil(100-utilization)))
 			autodrained = false

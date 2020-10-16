@@ -7,7 +7,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
-	"time"	
+	"time"
 )
 
 var currentAgentStatus string = ""
@@ -61,6 +61,7 @@ type XMLConfig struct {
 	TCPService                        []TCPService
 	ReadAgentStatusFromConfig         ValueAttr
 	ReadAgentStatusFromConfigInterval ValueAttr
+	ReturnIdleInsteadLoad             ValueAttr
 	AgentStatus                       ValueAttr
 	Interval                          ValueAttr
 	Port                              ValueAttr
@@ -84,7 +85,6 @@ func readConfig(configFilePath string) {
 }
 
 func InitConfig(logFilePath string, configFilePath string) {
-	// errFilePath := fmt.Sprintf("%s\\logFile.txt", logFilePath)
 	f, err := os.OpenFile(logFilePath, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 	if err != nil {
 		log.Fatalf("error opening file: %v", err)
