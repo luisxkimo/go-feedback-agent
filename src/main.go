@@ -1,12 +1,17 @@
 package main
 
 import (
-	"github.com/kardianos/service"
 	"log"
-	"os"	
+	"os"
+
+	"github.com/kardianos/service"
 )
 
 var logger service.Logger
+
+var (
+	downTicker = 0.0
+)
 
 type program struct{}
 

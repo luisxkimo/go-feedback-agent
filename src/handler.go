@@ -67,8 +67,14 @@ func GetResponseForMode() (response []byte) {
 		if averageCpuLoad > cpuThresholdValue && cpuThresholdValue > 0 || (usedRam > ramThresholdValue && ramThresholdValue > 0) {
 			response = []byte("0% drain\n")
 			autodrained = true
+			downTicker++
+			if downTicker > 5 {
+				response = []byte("down\n")
+			}
 			return
 		}
+
+		downTicker = 0.0
 
 		for _, tcpService := range GlobalConfig.TCPService {
 			// Make sure our importance factor is greater than 0 otherwise ignore
