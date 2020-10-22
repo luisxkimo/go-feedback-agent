@@ -50,7 +50,7 @@ func prepareConfigFileWatcher(configFilePath string) {
 			case ev := <-watcher.Event:
 				if ev.IsModify() {
 					log.Println("New FileWatcher event:", ev)
-					return
+					readConfig(configFilePath)
 				}
 			case err := <-watcher.Error:
 				log.Println("Error on config FileWatcher:", err)

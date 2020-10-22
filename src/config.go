@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/xml"
+	"fmt"
 	"io"
 	"io/ioutil"
 	"log"
@@ -69,19 +70,23 @@ type XMLConfig struct {
 }
 
 func readConfig(configFilePath string) {
+	time.Sleep(3 * time.Second)
 	xmlFile, err := os.Open(configFilePath)
 	if err != nil {
-		panic(err)
+		errormsg := fmt.Sprintf("Error opening xml config file: %v", err)
+		log.Panicln(errormsg)
 	}
 	defer xmlFile.Close()
 	content, err := ioutil.ReadAll(xmlFile)
 	if err != nil {
-		panic(err)
+		errormsg := fmt.Sprintf("Error reading content xml config file: %v", err)
+		log.Panicln(errormsg)
 	}
 
 	err = xml.Unmarshal(content, &GlobalConfig)
 	if err != nil {
-		panic(err)
+		errormsg := fmt.Sprintf("error unmarshall xml config file: %v", err)
+		log.Panicln(errormsg)
 	}
 }
 
