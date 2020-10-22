@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/xml"
+	"io"
 	"io/ioutil"
 	"log"
 	"os"
@@ -89,7 +90,8 @@ func InitConfig(logFilePath string, configFilePath string) {
 	if err != nil {
 		log.Fatalf("error opening file: %v", err)
 	}
-	log.SetOutput(f)
+	mw := io.MultiWriter(os.Stdout, f)
+	log.SetOutput(mw)
 	readConfig(configFilePath)
 
 	intervalTicker := time.NewTicker(time.Second * time.Duration(GlobalConfig.Interval.ToInt()))

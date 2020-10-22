@@ -16,6 +16,7 @@ const (
 	Halt   = "Halt"
 	Drain  = "Drain"
 	Down   = "Down"
+	Stop   = "Stop"
 )
 
 var (
@@ -130,6 +131,8 @@ func GetResponseForMode() (response []byte) {
 	case Down:
 		response = []byte("down\n")
 	case Halt:
+		response = []byte("down\n")
+	case Stop:
 		response = []byte("down\n")
 	default:
 		response = []byte("error\n")
